@@ -1,6 +1,11 @@
 package describe
 
-import "github.com/go-resty/resty/v2"
+import (
+	"fmt"
+	"regexp"
+
+	"github.com/go-resty/resty/v2"
+)
 
 type WikimediaClient interface {
 	QueryText(name string) (string, error)
@@ -31,6 +36,16 @@ type QueryResult struct {
 	}
 }
 
+var descriptionRegexp = regexp.MustCompile(`(?i)\{\{Short description\|(.*)\}\}`)
+
+func parseDescription(queryResult string) (string, bool) {
+	result := descriptionRegexp.FindStringSubmatch(queryResult)
+	if result == nil || len(result) < 2 {
+		return "", false
+	}
+	return result[1], true
+}
+
 // QueryText implements WikimediaClient
 func (client *restyWikimediaClient) QueryText(name string) (string, error) {
 	result := new(QueryResult)
@@ -43,7 +58,17 @@ func (client *restyWikimediaClient) QueryText(name string) (string, error) {
 		return "", err
 	}
 	result = resp.Result().(*QueryResult)
-	return result.Query.Pages[0].Revisions[0].Content, nil
+
+	// if len(result.Query.Pages)
+	pages := result.Query.Pages
+	if len(pages) == 0 || len(pages[0].Revisions) == 0 {
+		return "", DescriptionNotFound{name}
+	}
+	description, found := parseDescription(pages[0].Revisions[0].Content)
+	if !found {
+		return "", DescriptionNotFound{name}
+	}
+	return description, nil
 }
 
 // Base client class wikipedia.org
@@ -53,4 +78,13 @@ func MakeHttpClient() WikimediaClient {
 	client := resty.New().EnableTrace()
 
 	return (*restyWikimediaClient)(client)
+}
+
+type DescriptionNotFound struct {
+	name string
+}
+
+// Error implements error
+func (err DescriptionNotFound) Error() string {
+	return fmt.Sprintf("Description for %v not found", err.name)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	client := describe.MakeHttpClient()
+	client := describe.MakeCachedWikimediaClient(describe.MakeHttpClient())
 	r := gin.Default()
 	r.GET("hello", describe.Hello())
 	r.GET("query", describe.Query(client))
