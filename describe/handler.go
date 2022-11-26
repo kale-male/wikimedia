@@ -12,10 +12,10 @@ func Hello() gin.HandlerFunc {
 	}
 }
 
-func Query(client WikimediaClient) gin.HandlerFunc {
+func Query(app *App) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		q := ctx.Query("name")
-		result, err := client.QueryText(q)
+		result, err := app.WikimediaClient.QueryText(q)
 		if err != nil {
 			switch err.(type) {
 			case DescriptionNotFound:

@@ -11,7 +11,9 @@ type WikimediaClient interface {
 	QueryText(name string) (string, error)
 }
 
-type restyWikimediaClient resty.Client
+type restyWikimediaClient struct {
+	client *resty.Client
+}
 
 // Helper to cover all the query params
 func makeWikiQuery(name string) map[string]string {
@@ -49,11 +51,11 @@ func parseDescription(queryResult string) (string, bool) {
 // QueryText implements WikimediaClient
 func (client *restyWikimediaClient) QueryText(name string) (string, error) {
 	result := new(QueryResult)
-	resp, err := (*resty.Client)(client).R().
+	resp, err := client.client.R().
 		SetQueryParams(makeWikiQuery(name)).
 		SetHeader("Accept", "application/json").
 		SetResult(result).
-		Get("https://en.wikipedia.org/w/api.php")
+		Get("/w/api.php")
 	if err != nil {
 		return "", err
 	}
@@ -74,10 +76,10 @@ func (client *restyWikimediaClient) QueryText(name string) (string, error) {
 // Base client class wikipedia.org
 //
 // https://www.mediawiki.org/wiki/API:Main_page
-func MakeHttpClient() WikimediaClient {
-	client := resty.New().EnableTrace()
+func MakeHttpClient(config *Config) WikimediaClient {
+	client := resty.New().EnableTrace().SetBaseURL(config.WikiAPIbaseURL)
 
-	return (*restyWikimediaClient)(client)
+	return &restyWikimediaClient{client}
 }
 
 type DescriptionNotFound struct {
