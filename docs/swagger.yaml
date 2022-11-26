@@ -1,0 +1,39 @@
+info:
+  contact: {}
+  description: Description Service
+  title: Wikimedia Description Service
+  version: "0.1"
+paths:
+  /hello:
+    get:
+      description: healthcheck
+      responses: {}
+      summary: Healthcheck
+      tags:
+      - app
+  /query:
+    get:
+      description: getting short description by name
+      parameters:
+      - description: name to search
+        in: query
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Wiki Description
+      tags:
+      - app
+swagger: "2.0"

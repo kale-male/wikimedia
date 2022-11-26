@@ -7,12 +7,26 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Hello godoc
+// @Summary	Healthcheck
+// @Description  healthcheck
+// @Tags         app
+// @Router       /hello [get]
 func Hello() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"ping": "pong"})
 	}
 }
 
+// Wiki Description godoc
+// @Summary	Wiki Description
+// @Description  getting short description by name
+// @Tags         app
+// @Param        name  query     string                                               true  "name to search"
+// @Success      200                  string    OK
+// @Failure      404                  string    NOT FOUND
+// @Failure      500                  string    INTERNAL_SERVER_ERROR
+// @Router       /query [get]
 func Query(app *App) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		q := ctx.Query("name")
