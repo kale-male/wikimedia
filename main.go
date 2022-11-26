@@ -1,11 +1,15 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"wikimedia/describe"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	client := MakeHttpClient()
+	client := describe.MakeHttpClient()
 	r := gin.Default()
-	r.GET("hello", hello())
-	r.GET("query", query(client))
+	r.GET("hello", describe.Hello())
+	r.GET("query", describe.Query(client))
 	r.Run()
 }
