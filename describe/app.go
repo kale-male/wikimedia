@@ -8,6 +8,6 @@ type App struct {
 func MakeApp() App {
 	var app App
 	app.Config = ReadConfig()
-	app.WikimediaClient = MakeCachedWikimediaClient(MakeHttpClient(&app.Config))
+	app.WikimediaClient = MakeCachedWikimediaClient(&app.Config, MakeHttpClient(&app.Config))
 	return app
 }

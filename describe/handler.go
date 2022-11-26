@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/net/context"
 )
 
 func Hello() gin.HandlerFunc {
@@ -15,7 +16,8 @@ func Hello() gin.HandlerFunc {
 func Query(app *App) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		q := ctx.Query("name")
-		result, err := app.WikimediaClient.QueryText(q)
+		dlCtx, _ := context.WithTimeout(ctx, app.Config.RequestTimeout)
+		result, err := app.WikimediaClient.QueryText(dlCtx, q)
 		if err != nil {
 			switch err.(type) {
 			case DescriptionNotFound:

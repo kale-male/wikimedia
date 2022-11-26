@@ -1,6 +1,7 @@
 package describe
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type WikimediaClient interface {
-	QueryText(name string) (string, error)
+	QueryText(ctx context.Context, name string) (string, error)
 }
 
 type restyWikimediaClient struct {
@@ -49,12 +50,13 @@ func parseDescription(queryResult string) (string, bool) {
 }
 
 // QueryText implements WikimediaClient
-func (client *restyWikimediaClient) QueryText(name string) (string, error) {
+func (client *restyWikimediaClient) QueryText(ctx context.Context, name string) (string, error) {
 	result := new(QueryResult)
 	resp, err := client.client.R().
 		SetQueryParams(makeWikiQuery(name)).
 		SetHeader("Accept", "application/json").
 		SetResult(result).
+		SetContext(ctx).
 		Get("/w/api.php")
 	if err != nil {
 		return "", err

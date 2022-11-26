@@ -2,7 +2,6 @@ package describe
 
 import (
 	"context"
-	"time"
 
 	"github.com/eko/gocache/v3/cache"
 	"github.com/eko/gocache/v3/store"
@@ -15,21 +14,20 @@ type CachedWikimediaClient struct {
 }
 
 // QueryText implements WikimediaClient
-func (client *CachedWikimediaClient) QueryText(name string) (string, error) {
-	ctx := context.TODO()
+func (client *CachedWikimediaClient) QueryText(ctx context.Context, name string) (string, error) {
 	result, _ := client.cacheManager.Get(ctx, name)
 	if result != "" {
 		return result, nil
 	}
-	result, err := client.wrapped.QueryText(name)
+	result, err := client.wrapped.QueryText(ctx, name)
 	if err == nil {
 		client.cacheManager.Set(ctx, name, result)
 	}
 	return result, err
 }
 
-func MakeCachedWikimediaClient(wrapped WikimediaClient) WikimediaClient {
-	gocacheClient := gocache.New(5*time.Minute, 10*time.Minute)
+func MakeCachedWikimediaClient(cfg *Config, wrapped WikimediaClient) WikimediaClient {
+	gocacheClient := gocache.New(cfg.CacheTTL, 2*cfg.CacheTTL)
 	gocacheStore := store.NewGoCache(gocacheClient)
 
 	cacheManager := cache.New[string](gocacheStore)
