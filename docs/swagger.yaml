@@ -24,7 +24,9 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: Not Found
           schema:

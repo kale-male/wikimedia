@@ -18,14 +18,18 @@ func Hello() gin.HandlerFunc {
 	}
 }
 
+type QueryResponse struct {
+	Results map[string]string
+}
+
 // Wiki Description godoc
 // @Summary	Wiki Description
 // @Description  getting short description by name
 // @Tags         app
 // @Param        name  query     string                                               true  "name to search"
-// @Success      200                  string    OK
-// @Failure      404                  string    NOT FOUND
-// @Failure      500                  string    INTERNAL_SERVER_ERROR
+// @Success      200                  {object}  map[string]string
+// @Failure      404                  string                       NOT FOUND
+// @Failure      500                  string                       INTERNAL_SERVER_ERROR
 // @Router       /query [get]
 func Query(app *App) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -40,6 +44,6 @@ func Query(app *App) gin.HandlerFunc {
 				ctx.AbortWithError(http.StatusInternalServerError, err)
 			}
 		}
-		ctx.JSON(http.StatusOK, result)
+		ctx.JSON(http.StatusOK, map[string]string{"EN": result})
 	}
 }
